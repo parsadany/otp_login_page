@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Login Title</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+<style>
+    /* You can add more styles here */
+</style>
+<!-- You can add more scripts here, like jQuery
+<script src=""></script> -->
+
+<body>
+
+    <div id="login-page">
+        <img src="/sample-svg-logo.png" class="login-mobile-logo-img">
+        <div class="login-page-container">
+            <div class="login-page-container-child-background">
+                <div class="login-page-container-child-text">
+                    <p>
+                        <span class="mylogin-span">welcome</span>
+                        to my login page
+                    </p>
+                </div>
+                <div class="login-background-image">
+                    <img class="login-mylogin-logo" src="/sample-svg-logo.png" alt="mylogin">
+                </div>
+            </div>
+            <!-- enter phone number scope -->
+            <div id="submit-phone-section" class="login-page-container-child-form">
+                <span class="login-title">login</span>
+                <span class="login-detail-text">
+                    Please enter your phone number to get verification SMS.
+                </span>
+                <div class="phone-input-section">
+                    <input id="phone-number-input" class="phone-input" type="text" onkeyup="inputValidator(this)"
+                        onkeypress="inputValidator(this)" onkeydown="inputValidator(this)">
+                </div>
+                <button id="submit-phone" class="register-btn" disabled="true" onclick="submitPhoneNumber()">
+                    <span>Verify your phone number</span>
+                </button>
+            </div>
+            <!-- enter verification code scope -->
+            <div id="verify-phone-section" class="none-display-section login-page-container-child-form">
+                <span class="login-title login-title-verify">Please enter the verification code, we've sent it to your phone</span>
+                <span class="login-detail-text">
+                    The Verification code is sent to
+                    <span id="registering-phone"></span>
+                    , Wrong phone number?
+                    <img src="/edit-phone.svg" alt="change phone number" class="login-edit-phone" onclick="editPhoneNumber()">
+                </span>
+                <div class="verify-input-section">
+                    <fieldset class='number-code'>
+                        <div>
+                            <input name='code' type="Decimal" class='code-input' required />
+                            <input name='code' class='code-input' required />
+                            <input name='code' class='code-input' required />
+                            <input name='code' class='code-input' required />
+                            <input name='code' class='code-input' required />
+                        </div>
+                    </fieldset>
+
+                </div>
+                <div id="wrong-code" class="none-display-section login-wrong-code">
+                    <span>The entered code is not correct!</span>
+                </div>
+                <div class="login-countdown">
+                    You can request for resend code in
+                    <span id="seconds-to-resend">
+                    </span>
+                    seconds
+                </div>
+                <button id="verify-phone" class="register-btn" disabled="true" onclick="resendCode()">
+                    <span>Resend code</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+<style>
+    /* You can add more styles here! */
+</style>
+
+<script>
+    // Login page variables
+    var requestOTP;
+    var verifyOTP;
+    var resendTime = null;
+    var interval = null;
+    var resendTime;
+
+    function inputValidator(element) {
+        const p2e = s => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+        const a2e = s => s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        element.value = p2e(element.value);
+        element.value = a2e(element.value);
+        element.value = element.value.replace(/\D/g, '');
+        element.value = element.value.replace(
+            /[a-zA-Z\u0600-\u065F\u066A-\u06EF\u06FA-\u06FF]/,
+            ""
+        );
+        let x = element.value
+            .replace(/[a-zA-Z\u0600-\u065F\u066A-\u06EF\u06FA-\u06FF]/, "")
+            .match(
+                /^(?<prefix>([0٠۰])?)?(?<phone>[9٩۹][0-9٠-٩۰-۹]{9})$/
+            );
+        if (x !== null) {
+            document.getElementById("submit-phone").disabled = false;
+        } else {
+            document.getElementById("submit-phone").disabled = true;
+        }
+        document.getElementById("registering-phone").innerHTML = element.value;
+    };
+
+    // submit phone number button:
+    async function submitPhoneNumber() {
+        // loading ...
+        document.getElementById("submit-phone").disabled = true;
+        document.getElementById("submit-phone").innerHTML = "<span>Please wait...</span>";
+        sendRequestOTP();
+        changePage();
+
+    }
+
+    function sendRequestOTP() {
+        let phoneNumber = document.getElementById("phone-number-input").value;
+        let data = {
+            phone_number: "+1" + phoneNumber.substring(1, phoneNumber.length) // you can add your country code to phone number, for example +1 for USA
+        };
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
+                // Typical action to be performed when the document is ready:
+                let res = JSON.parse(xhttp.responseText);
+                requestOTP = res.data;
+                setCountDown();
+                document.getElementById("submit-phone").disabled = false;
+                document.getElementById("submit-phone").innerHTML = "<span>Verify phone number</span>";
+            }
+        };
+        xhttp.open("POST", "https://api.mylogin.com/auth/api/v1/phone_number/otp/request/", true);
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(data));
+    }
+
+    // Resend code and its loading status:
+    async function resendCode() {
+        document.getElementById("verify-phone").disabled = true;
+        document.getElementById("verify-phone").innerHTML = "<span>Please wait...</span>";
+        await sendRequestOTP();
+        document.getElementById("verify-phone").innerHTML = "<span>Resend code</span>";
+    }
+
+    // change page from enter phone to verify phone and vice versa:
+    function changePage() {
+        document.getElementById("submit-phone-section").classList.toggle("none-display-section");
+        document.getElementById("verify-phone-section").classList.toggle("none-display-section");
+    }
+
+    // Edit phone number action:
+    function editPhoneNumber() {
+        changePage();
+        clearInterval(interval);
+    }
+
+    // example of Count Down to resend code
+    function setCountDown() {
+        nowTime = new Date();
+        nowTime = nowTime.getTime();
+        resendTime = new Date(nowTime + 30000);
+        document.getElementById("seconds-to-resend").innerHTML = 30;
+        interval = setInterval(function () {
+            let now;
+            if (resendTime !== null) {
+                // Get now Datetime
+                now = new Date();
+                now = now.getTime();
+
+                // Find the distance between now and the count down Date
+                let distance = resendTime - now;
+                
+                // Display the result in the element with id="seconds-to-resend"
+                document.getElementById("seconds-to-resend").innerHTML = parseInt(distance / 1000);
+
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                    clearInterval(interval);
+                    document.getElementById("seconds-to-resend").innerHTML = 0;
+                    document.getElementById("verify-phone").disabled = false;
+                }
+            }
+        }, 1000);
+    }
+
+
+
+    const inputElements = [...document.querySelectorAll('input.code-input')]
+
+    inputElements.forEach((ele, index) => {
+        ele.addEventListener('keydown', (e) => {
+            // if the keycode is backspace & the current field is empty
+            // focus the input before the current. Then the event happens
+            // which will clear the "before" input box.
+            if (e.keyCode === 8 && e.target.value === '') inputElements[Math.max(0, index - 1)].focus()
+        })
+        ele.addEventListener('input', (e) => {
+            // take the first character of the input
+            // this actually breaks if you input an emoji like 👨‍👩‍👧‍👦....
+            // but I'm willing to overlook insane security code practices.
+            const p2e = s => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+            const a2e = s => s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+            e.target.value = p2e(e.target.value);
+            e.target.value = a2e(e.target.value);
+            e.target.value = e.target.value.replace(/\D/g, '');
+            const [first, ...rest] = e.target.value
+            e.target.value = first ?? '' // first will be undefined when backspace was entered, so set the input to ""
+            const lastInputBox = index === inputElements.length - 1
+            const didInsertContent = first !== undefined
+            if (didInsertContent && !lastInputBox) {
+                // continue to input the rest of the string
+                inputElements[index + 1].focus()
+                inputElements[index + 1].value = rest.join('')
+                inputElements[index + 1].dispatchEvent(new Event('input'))
+            }
+            if (didInsertContent && lastInputBox && inputElements[index].value != undefined && inputElements[index].value != '') {
+                phoneVerificationSubmit();
+            }
+        })
+    })
+
+
+    // send request for verification code example
+    function phoneVerificationSubmit() {
+        const code = inputElements.map(({
+            value
+        }) => value).join('')
+        console.log(code)
+        requestOTP.code = code;
+        let xhttp = new XMLHttpRequest();
+        document.getElementById("verify-phone").disabled = true;
+        document.getElementById("verify-phone").innerHTML = "<span>Please wait...</span>";
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && (this.status == 200 || this.status == 201)) {
+                // success action:
+                let res = JSON.parse(xhttp.responseText);
+                verifyOTP = res.data;
+                document.getElementById("verify-phone").disabled = false;
+                document.getElementById("verify-phone").innerHTML = "<span>Resend code</span>";
+                setAuthenticationCredentials(JSON.stringify({ tokens: verifyOTP.tokens }));
+
+            } else if (this.readyState == 4) {
+                // wrong answer!
+                document.getElementById("wrong-code").classList.toggle("none-display-section");
+                document.getElementById("verify-phone").disabled = false;
+                document.getElementById("verify-phone").innerHTML = "<span>Resend code</span>";
+            }
+        };
+        xhttp.open("POST", "https://api.mylogin.ir/auth/api/v1/phone_number/otp/verify/", true);
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhttp.send(JSON.stringify(requestOTP));
+    }
+
+    function setAuthenticationCredentials(data) {
+        // if you have a fullstack backend that uses a POST request, you can create a form and submit your data to backend
+        // for example, you can send it to your microservice to set cookies!
+        let url = '/login/';
+        console.log("END:", typeof (data), data);
+        let f = document.createElement('form');
+        f.action = url;
+        f.method = 'POST';
+        let i = document.createElement('input');
+        i.type = 'hidden';
+        i.name = 'credentials';
+        i.value = data;
+        f.appendChild(i);
+        document.body.appendChild(f);
+        f.submit();
+    }
+</script>
+
+</html>

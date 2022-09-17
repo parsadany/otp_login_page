@@ -1,0 +1,204 @@
+body {
+    margin: 0px;
+    background-color: #F0F0F1;
+}
+
+#login-page {
+    direction: ltr; 
+    /* for RTL, just change it to rtl and everything will be okay! */
+    text-align: center;
+    color: #2c3e50;
+}
+
+.login-page-container {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    height: 100vh;
+    margin: 0px;
+    padding: 0px;
+    justify-content: center;
+}
+
+.login-page-container-child-background {
+    min-width: 50%;
+    background-image: url(/loginbackground.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    background-position: 50%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.login-page-container-child-text {
+    color: #c4c4c4;
+    font-size: 26px;
+    text-align: center;
+    margin: 0px 24px;
+}
+
+
+.login-background-image {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-mylogin-logo {
+    max-width: 70%;
+    margin-left: 55px;
+    margin-right: 55px;
+    background-color: transparent !important;
+}
+
+
+.login-mobile-logo-img {
+    display: none;
+    max-width: 220px;
+    margin-top: 32px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media only screen and (max-width: 700px) {
+    .login-page-container-child-background {
+        display: none !important;
+    }
+
+    .login-mobile-logo-img {
+        display: block;
+    }
+}
+
+.login-page-container-child-form {
+    display: flex;
+    flex-direction: column;
+    min-width: 50%;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+
+}
+
+.none-display-section {
+    display: none;
+}
+
+.login-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 32px;
+}
+
+.login-title-verify {
+    text-align: start;
+}
+
+.mylogin-span {
+    font-size: inherit;
+    color: #8aa1ff;
+}
+
+.login-detail-text {
+    font-size: 14px;
+}
+
+.phone-input-section {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+
+
+.phone-input {
+    text-indent: 10px;
+    height: 48px;
+    border: 1px solid;
+    border: #e7e7e7;
+    border-radius: 2px;
+    width: 100%;
+    cursor: pointer;
+    max-width: 370px;
+}
+
+.phone-input:focus {
+    outline: none;
+}
+
+.register-btn {
+    width: 100%;
+    height: 48px;
+    background: #8aa1ff;
+    border-radius: 2px;
+    max-width: 370px;
+    border: 0px solid;
+}
+
+.register-btn:active {
+    color: #212529;
+    max-width: 370px;
+}
+
+.login-countdown {
+    margin: 24px 0px;
+}
+
+.verify-input-section {
+    width: 100%;
+    max-width: 370px;
+    margin-top: 16px;
+}
+
+.number-code>div {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+fieldset {
+    border: 0px;
+}
+
+fieldset input.code-input {
+    width: 24px;
+    text-align: center;
+}
+
+fieldset input {
+    display: block;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+}
+
+fieldset input {
+    padding: 8px;
+    border-radius: 2px;
+    color: black;
+    border: 0;
+    border: 4px solid transparent;
+}
+
+fieldset input:invalid {
+    box-shadow: none;
+}
+
+fieldset input:focus {
+    outline: none;
+    border: 2px solid #8aa1ff;
+}
+
+.login-edit-phone {
+    cursor: pointer;
+}
+
+.login-wrong-code {
+    color: #d20032;
+    font-size: 14px;
+    margin-top: 16px;
+}
